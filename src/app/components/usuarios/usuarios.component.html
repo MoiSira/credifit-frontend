@@ -1,0 +1,45 @@
+<div class="container-fluid">
+<div class="container">
+  <section class="table">
+    <app-table
+      [data]="USERS_DATA"
+      [columns]="tableColumns"
+      [config]="tableConfig"
+      [sortConfig]="sortDisabled"
+      [userPermissions]="permissions"
+      (blockedRow)="blockUser($event)"
+      (editedRow)="modalEditUserAction($event, modalEditUser)"
+      (deletedRow)="modalDeleteUserAction($event, modalDeleteUser)"
+    ></app-table>
+  </section>
+</div>
+
+<ng-template #modalEditUser>
+  <h2 mat-dialog-title>Editar Usuario</h2>
+  <mat-dialog-content>
+    <p style="padding-top: 20px;">{{userToEdit.nombre}} {{userToEdit.apellido}}</p>
+    <mat-form-field class="roles-field">
+      <mat-label>Cambiar Rol</mat-label>
+      <mat-select [formControl]="rolControl">
+          <mat-option *ngFor="let rol of roles" [value]="rol.id_rol">{{rol.nombre_rol}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="rolControl.hasError('required')">El campo Rol es requerido</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close style="color: white;">Cancelar</button>
+    <button mat-raised-button mat-dialog-close color="primary" style="color: white; background-color: #4DCC42;" (click)="editUser()" [disabled]="rolControl.invalid">Guardar</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<ng-template #modalDeleteUser>
+  <h2 mat-dialog-title>Eliminar Usuario</h2>
+  <mat-dialog-content>
+    <p style="padding-top: 20px;">Seguro de eliminar el Usuario <strong>{{userToDelete.usuario}}</strong></p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close style="color: white;">No</button>
+    <button mat-raised-button mat-dialog-close color="warn" (click)="deleteUser()">Si</button>
+  </mat-dialog-actions>
+</ng-template>
+</div>

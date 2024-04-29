@@ -1,0 +1,15 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'ngx-toastr/toastr';
+@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.fc .fc-popover-header {
+    background-color: #393a3f;
+    color: #f4ebeb;
+}
+
+.fc .fc-popover-body {
+    background-color: #494b4f;
+    color: #f4ebeb;
+}

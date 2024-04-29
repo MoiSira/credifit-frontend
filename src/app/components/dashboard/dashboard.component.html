@@ -1,0 +1,266 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card card-primary">
+          <div class="card-body p-0">
+            <!-- THE CALENDAR -->
+            <div #calendar>
+              <full-calendar [options]="calendarOptions"></full-calendar>
+            </div>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+</section>
+
+<ng-template #modalReservar>
+  <div *ngIf="userBlock == 0 else modalUserBlock">
+    <h2 mat-dialog-title>Reservar</h2>
+    <mat-tab-group *ngIf="permissions?.actions?.reservasPorPeriodos else singleReservation" (selectedTabChange)="setTabIndexSelected($event)">
+      <mat-tab label="Reserva Única">
+        <mat-dialog-content>
+          <form>
+            <mat-form-field class="date-field">
+              <mat-label>Fecha</mat-label>
+              <input matInput [matDatepicker]="picker" placeholder="Seleccionar fecha" [formControl]="reserveDateControl" [matDatepickerFilter]="dateFilter" (ngModelChange)="enableCreateButton()">
+              <mat-hint>DD/MM/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field class="shift-field">
+              <mat-label>Seleccione el turno</mat-label>
+              <select id="shiftSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+              <mat-select id="shiftSelect" [formControl]="selectedShiftControl" (selectionChange)="filterSchedules()">
+                <mat-option [value]="schedulesShiftKey[0]">{{schedulesShiftKey[0]}}</mat-option>
+                <mat-option [value]="schedulesShiftKey[1]">{{schedulesShiftKey[1]}}</mat-option>
+                <mat-option [value]="schedulesShiftKey[2]">{{schedulesShiftKey[2]}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="selectedShiftControl.hasError('required')">El campo Turno es requerido</mat-error>
+            </mat-form-field>
+            <br>
+            <mat-form-field class="schedules-field">
+              <mat-label>Seleccione el horario</mat-label>
+              <select id="scheduleSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+              <mat-select id="scheduleSelect" [formControl]="selectedTimeControl" (selectionChange)="enableCreateButton()">
+                <mat-option *ngFor="let schedule of schedules" [value]="schedule.id_horario">
+                  <strong>Desde:</strong> {{schedule.hora_ini}} <strong>Hasta:</strong> {{schedule.hora_fin}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="selectedTimeControl.hasError('required')">El campo Horario es requerido</mat-error>
+            </mat-form-field>
+          </form>
+        </mat-dialog-content>
+      </mat-tab>
+      <mat-tab label="Reserva por Período">
+        <mat-dialog-content>
+          <form>
+            <mat-form-field class="date-field">
+              <mat-label for="startRangeDate">Elija un rango de fechas</mat-label>
+              <mat-date-range-input [formGroup]="dateRange" [rangePicker]="pickerDateRange">
+                <input matStartDate id="startRangeDate" name="startRangeDate" formControlName="start" placeholder="Fecha de inicio" (ngModelChange)="enableCreateButton()">
+                <input matEndDate id="endRangeDate" name="endRangeDate" formControlName="end" placeholder="Fecha de Fin" (ngModelChange)="enableCreateButton()">
+              </mat-date-range-input>
+              <mat-hint>DD/MM/YYYY - DD/MM/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="pickerDateRange"></mat-datepicker-toggle>
+              <mat-date-range-picker #pickerDateRange></mat-date-range-picker>
+              <mat-error *ngIf="dateRange.controls.start.hasError('required')">El campo es requerido</mat-error>
+              <mat-error *ngIf="dateRange.controls.end.hasError('required')">El campo es requerido</mat-error>
+              <mat-error *ngIf="dateRange.controls.start.hasError('matStartDateInvalid')">Fecha de inicio inválida</mat-error>
+              <mat-error *ngIf="dateRange.controls.end.hasError('matEndDateInvalid')">Fecha de fin inválida</mat-error>
+            </mat-form-field>
+            <mat-form-field class="users-field">
+              <mat-label>Seleccione los usuarios</mat-label>
+              <mat-chip-grid #chipGrid aria-label="User selection">
+                <mat-chip-row *ngFor="let user of chipsUsers; trackBy: trackByFn" [removable]="true" (removed)="removeChipsUser(user)">
+                  {{user}}
+                  <button matChipRemove [attr.aria-label]="'remove ' + user">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              </mat-chip-grid>
+              <input placeholder="Buscar usuario..." #usersChipsInput [formControl]="usersChipsControl"
+                [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                (matChipInputTokenEnd)="addChipsUser($event)"/>
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedChipsUser($event)">
+                  <mat-option *ngFor="let user of filteredUsers | async; trackBy: trackByFn" [value]="user">{{user}}</mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field class="shift-field">
+              <mat-label>Seleccione el turno</mat-label>
+              <select id="shiftSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+              <mat-select id="shiftSelect" [formControl]="selectedPeriodShiftControl" (selectionChange)="filterSchedules()">
+                <mat-option [value]="schedulesShiftKey[0]">{{schedulesShiftKey[0]}}</mat-option>
+                <mat-option [value]="schedulesShiftKey[1]">{{schedulesShiftKey[1]}}</mat-option>
+                <mat-option [value]="schedulesShiftKey[2]">{{schedulesShiftKey[2]}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="selectedPeriodShiftControl.hasError('required')">El campo Turno es requerido</mat-error>
+            </mat-form-field>
+            <br>
+            <mat-form-field class="schedules-field">
+              <mat-label>Seleccione el horario</mat-label>
+              <select id="scheduleSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+              <mat-select id="scheduleSelect" [formControl]="selectedPeriodTimeControl" (selectionChange)="enableCreateButton()">
+                <mat-option *ngFor="let schedule of schedules" [value]="schedule.id_horario">
+                  <strong>Desde:</strong> {{schedule.hora_ini}} <strong>Hasta:</strong> {{schedule.hora_fin}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="selectedPeriodTimeControl.hasError('required')">El campo Horario es requerido</mat-error>
+            </mat-form-field>
+          </form>
+        </mat-dialog-content>
+      </mat-tab>
+    </mat-tab-group>
+
+    <ng-template #singleReservation>
+      <mat-dialog-content>
+        <form>
+          <mat-form-field class="date-field">
+            <mat-label>Fecha</mat-label>
+            <input matInput [matDatepicker]="picker" placeholder="Seleccionar fecha" [formControl]="reserveDateControl" [matDatepickerFilter]="dateFilter" (ngModelChange)="enableCreateButton()">
+            <mat-hint style="color: #4DCC42;">DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field class="shift-field">
+            <mat-label>Seleccione el turno</mat-label>
+            <select id="shiftSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+            <mat-select id="shiftSelect" [formControl]="selectedShiftControl" (selectionChange)="filterSchedules()">
+              <mat-option [value]="schedulesShiftKey[0]">{{schedulesShiftKey[0]}}</mat-option>
+              <mat-option [value]="schedulesShiftKey[1]">{{schedulesShiftKey[1]}}</mat-option>
+              <mat-option [value]="schedulesShiftKey[2]">{{schedulesShiftKey[2]}}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="selectedShiftControl.hasError('required')">El campo Turno es requerido</mat-error>
+          </mat-form-field>
+          <br>
+          <mat-form-field class="schedules-field">
+            <mat-label>Seleccione el horario</mat-label>
+            <select id="scheduleSelect" style="display: none;"></select> <!-- Esta linea es para eliminar un issue que me aparece en la consola del navegador -->
+            <mat-select id="scheduleSelect" [formControl]="selectedTimeControl" (selectionChange)="enableCreateButton()">
+              <mat-option *ngFor="let schedule of schedules" [value]="schedule.id_horario">
+                <strong>Desde:</strong> {{schedule.hora_ini}} <strong>Hasta:</strong> {{schedule.hora_fin}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="selectedTimeControl.hasError('required')">El campo Horario es requerido</mat-error>
+          </mat-form-field>
+        </form>
+      </mat-dialog-content>
+    </ng-template>
+
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close style="color: white;">Cancelar</button>
+      <button mat-raised-button (click)="createReserve()" color="primary" style="color: white; background-color: #4DCC42;" [disabled]="buttonDisabled">Crear</button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>
+
+<ng-template #modalUserBlock>
+  <h2 mat-dialog-title>Usuario bloqueado</h2>
+  <mat-dialog-content>
+    <p style="padding-top: 20px;">Los usuarios bloqueados no pueden reservar, por favor contacte con el personal de <strong>Calidad de vida</strong>.</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close style="color: white; background-color: #4DCC42;">Cerrar</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<ng-template #modalUsuariosReservas>
+  <div>
+  <h2 mat-dialog-title>Reservas para el turno {{turnoReservaModal}}</h2>
+  <mat-dialog-content>
+    <h3 style="padding-top: 20px;"><strong>Fecha:</strong> {{fechaReservaModal}} <strong>Hora de inicio:</strong> {{horaReservaModal}}</h3>
+    <ol>
+      <li *ngFor="let usuario of usersReservaModal">
+        <div class="user-reservation-list">
+          {{usuario.nombre}} {{usuario.apellido}} 
+          <button mat-icon-button color="primary" *ngIf="permissions?.actions?.eliminarReservas || userId == usuario.id_usuario" (click)="deleteUserReservation(usuario)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </li>
+    </ol>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close style="color: white;">Cerrar</button>
+    <button mat-raised-button mat-dialog-close color="warn" *ngIf="permissions?.actions?.eliminarReservas" (click)="deleteGlobalReservation(fechaReservaModal, horaReservaModal)">Eliminar reservas</button>
+  </mat-dialog-actions>
+  </div>
+</ng-template>
+
+<ng-template #modalReglasGym>
+  <h2 mat-dialog-title>Reglas del Gimnasio</h2>
+  <mat-dialog-content class="mat-typography">
+    <p style="padding-top: 20px;">CrediFit es un espacio que dispone Consorcio Credicard a sus colaboradores para la integración de la actividad física, a través del gimnasio corporativo, en el piso 18, ala norte de la Torre Credicard.</p>
+    <p>Para mantener la armonía en el entorno laboral hemos diseñado un conjunto de lineamientos y normas básicas de comportamiento para que hagas uso de tu Credifit:</p>
+    <ol>
+      <li>Agendar cita médica con Servicio Médico Ocupacional para recibir las indicaciones sobre el entrenamiento físico que puedes ejecutar y el  informe médico. Número de Extensión 4272</li>
+      <li>Agendar tu cita en el módulo Credifit a través de la Intranet.</li>
+    </ol>
+    <h3 class="reglash3">Acerca de los horarios y capacidad</h3>
+    <ol>
+      <li>Se permitirá el uso del espacio hasta por un máximo de 12 personas por turno</li>
+      <li>La duración del entrenamiento será hasta por una (1) hora.</li>
+      <li>La sala estará disponible domingo a lunes.</li>
+      <li>Fines de semana, feriados y bancarios estará disponible solo para el personal que le corresponda cumplir con su jornada laboral.</li>
+      <li>Atender estrictamente las indicaciones por parte del personal capacitado.</li>
+      <li>Los bloques en los que tendremos asesoría de entrenamiento y un monitor serán:</li>
+    </ol>
+    <h4>Matutino:</h4>
+    <ul>
+      <li>5:30 am a 6:30 am</li>
+      <li>6:30 am a 7:30 am (con entrenador)</li>
+      <li>7:30 am a 8:30 am (con entrenador)</li>
+      <li>8:30 am a 9:30 am (con entrenador)</li>
+      <li>9:30 am a 10:30 am (con entrenador)</li>
+      <li>10:30 am a 11:30 am (con entrenador)</li>
+    </ul>
+    <h4>Medio día:</h4>
+    <ul>
+      <li>12:00 m a 1:00 pm</li>
+      <li>1:00 m a 2:00 pm</li>
+    </ul>
+    <h4>Vespertino:</h4>
+    <ul>
+      <li>4:30 pm a 5:30 pm (con entrenador)</li>
+      <li>5:30 pm a 6:30 pm (con entrenador)</li>
+      <li>6:30 pm a 7:30 pm (con entrenador)</li>
+      <li>7:30 pm a 8:30 pm (con entrenador)</li>
+      <li>8:30 pm a 9:30 pm (con entrenador)</li>
+    </ul>
+    <p><strong>Notifique al monitor de sala cualquier punto de atención de salud que tengas consideración para cumplir su rutina</strong></p>
+    <h3 class="reglash3">Durante el uso del espacio:</h3>
+    <ol>
+      <li>Es obligatorio el uso de una toalla personal para ingresar y se recomienda llevar su hidratación. </li>
+      <li>Usa vestimenta deportiva adecuada (no se permitirán escotes, transparencias, shorts cortos).</li>
+      <li>No uses anillos, zarcillos, pulseras u otras prendas de valor que puedan ser objeto de pérdida.</li>
+      <li>Resguarda los bolsos deportivos en los lockers. Una vez culmines tu entrenamiento deberás dejar la llave en el cilindro correspondiente. </li>
+      <li>Evita ingerir alimentos en el área.</li>
+      <li>Retorna los implementos y material al lugar designado cuando termines tu rutina.</li>
+      <li>No dejes caer las mancuernas al suelo.</li>
+      <li>Conserva un tono de voz moderado.</li>
+    </ol>
+    <p><strong>Las gerencias de SSBL y Seguridad tienen la potestad de restringir el acceso en caso de incumplimiento de alguna de estas normas.</strong></p>
+    <p><strong>En caso de requerir el uso fuera de los bloques de entrenamiento establecidos, debe ser notificado y autorizado por la Gerencia de Seguridad.</strong></p>
+    <h3 class="reglash3">Lo que no está permitido:</h3>
+    <ol>
+      <li>Modificar la disposición de los equipos de entrenamiento.</li>
+      <li>Fumar y/o ingerir bebidas alcohólicas, sustancias alucinógenas, ergogénicas, esteroides
+        anabólicos ni otras sustancias que incidan sobre el aumento del rendimiento deportivo dentro del gimnasio o el espacio corporativo.</li>
+      <li>Circular por las oficinas sin camisa o demás prendas de vestir, no adecuadas al espacio corporativo. </li>
+      <li>Juegos bruscos que pongan en peligro la integridad de tus compañeros.</li>
+      <li>Dejar pertenencias en las zonas de entrenamiento o espacios de la sede.</li>
+      <li>El uso de secadores de cabello, planchas y otros dispositivos eléctricos. </li>
+    </ol>
+    <p><strong>Los  implementos o materiales que se encuentran en el gimnasio, son para tu uso ¡cuídalos!</strong></p>
+    <p><strong>El incumpliento de la presente normativa podrá acarrear sanciones administrativas y su recurrencias amonestaciones.</strong></p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close class="boton" style="color: white;">Aceptar</button>
+  </mat-dialog-actions>
+</ng-template>

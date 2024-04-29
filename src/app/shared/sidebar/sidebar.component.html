@@ -1,0 +1,132 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="/dashboard" class="brand-link">
+        <img src="../../../assets/logo.png"  class="brand-image img-circle-5" style="opacity: .5">
+        <span class="brand-text font-weight-light">CrediFit</span>
+    </a>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="info">
+                <a class="d-block">{{name}} {{lastname}}</a>
+            </div>
+        </div>
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Add icons to the links using the .nav-icon class
+                    with font-awesome or any other icon font library -->
+                <li class="nav-item">
+                    <a href="/dashboard" class="nav-link" style="cursor: pointer">
+                        <i class="nav-icon fas fa-dumbbell"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                        <i class="nav-icon fas fa-th"></i>
+                        <p>Reservar GYM</p>
+                    </a>
+                </li> -->
+                <li class="nav-item">
+                    <a href="/dashboard/myReserves" class="nav-link" >
+                    <i class="nav-icon fa-solid fas fa-running"></i>
+                    <p>Mis Reservas</p>
+                    </a>
+                </li>
+                <li class="nav-item" *ngIf="permissions?.actions?.bloquearUsuarios || permissions?.actions?.eliminarUsuarios || permissions?.actions?.cambiarRoles">
+                    <a href="/dashboard/users" class="nav-link">
+                        <i class="nav-icon fa-solid fas fa-user"></i>
+                        <p>Usuarios</p>
+                    </a>
+                </li>
+                <li class="nav-item" *ngIf="permissions?.actions?.verCalendarioDeportivo">
+                    <a href="/dashboard/sportsCalendar" class="nav-link" >
+                    <i class="nav-icon fa-regular fas fa-futbol"></i>
+                    <p>Calendario Deportivo</p>
+                    </a>
+                </li>
+                <li class="nav-item" *ngIf="permissions?.actions?.generarReporte">
+                    <a href="/dashboard/reports" class="nav-link" >
+                    <i class="nav-icon fa-solid fas fa-file-export"></i>
+                    <p>Reportes</p>
+                    </a>
+                </li>
+                <!-- <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-copy"></i>
+                    <p>
+                    Administración
+                    <i class="fas fa-angle-left right"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                    <a href="../layout/top-nav.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Horarios</p>
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a href="../layout/top-nav-sidebar.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Actividades Deportivas</p>
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/dashboard/users" class="nav-link">
+                            <i class="nav-icon far fa-image"></i>
+                            <p>Usuarios</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                    <a href="../layout/fixed-sidebar.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Reservas</p>
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a href="../layout/fixed-sidebar-custom.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Reglamento</p>
+                    </a>
+                    </li>
+                    <li class="nav-item">
+                    <a href="../layout/fixed-topnav.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Anuncios</p>
+                    </a>
+                    </li>
+                </ul>
+                </li>
+                <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-chart-pie"></i>
+                    <p>
+                    Seguridad
+                    <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                    <a href="../charts/chartjs.html" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Usuarios</p>
+                    </a>
+                    </li>
+                </ul>
+                </li> -->
+                <li class="nav-item">
+                    <a class="nav-link" (click)="logout()">
+                        <i class="nav-icon fas fa-sign-out-alt"></i> 
+                        <p>Cerrar Sesión</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

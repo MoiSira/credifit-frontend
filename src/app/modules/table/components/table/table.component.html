@@ -1,0 +1,61 @@
+<mat-form-field *ngIf="tableConfig?.showFilter">
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Moisés" #input>
+</mat-form-field>
+
+<table mat-table [dataSource]="dataSource" class="container mt-3" matSort (matSortChange)="onSort($event)">
+  <!-- Name Column -->
+  <ng-container *ngFor="let column of tableColumns" [matColumnDef]="column.def">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="" [disabled]="sortDisabled"> {{column.label}}</th>
+    <td mat-cell *matCellDef="let row"> {{row | columnValue: column}} </td>
+  </ng-container>
+
+  <!-- Action Column -->
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="" [disabled]="sortDisabled">
+      <ng-container *ngIf="permissions?.actions?.cambiarRoles && permissions?.actions?.eliminarUsuarios">
+        Acción
+      </ng-container>
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <ng-container *ngIf="permissions?.actions?.cambiarRoles && permissions?.actions?.eliminarUsuarios">
+        <button mat-icon-button color="primary" (click)="editRow(row)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteRow(row)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-container>
+    </td>
+  </ng-container>
+
+  <!-- Toggle Column -->
+  <ng-container matColumnDef="estatus">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header="" [disabled]="sortDisabled">
+      <ng-container *ngIf="permissions?.actions?.bloquearUsuarios">
+        Bloquear/Desbloquear
+      </ng-container>
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <ng-container *ngIf="permissions?.actions?.bloquearUsuarios">
+        <div class="bloquear-usuarios-styles">
+          <mat-slide-toggle checked="{{row.estatus === 1}}" color="warn" (toggleChange)="onToggleChange(row)"></mat-slide-toggle>
+        </div>
+      </ng-container>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <!-- Row shown when there is no matching data. -->
+  <tr class="mat-row" *matNoDataRow>
+    <td class="mat-cell" [colSpan]="displayedColumns.length">No existe ningún registro con los siguientes datos: "{{currentFilterValue}}"</td>
+  </tr>
+</table>
+
+<ng-container *ngIf="tableConfig?.isPaginator">
+  <mat-paginator [pageSizeOptions]="[10, 20, 30]"
+                 showFirstLastButtons
+                 aria-label="Select page of periodic elements">
+  </mat-paginator>
+</ng-container>

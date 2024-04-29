@@ -1,0 +1,15 @@
+.reports {
+    padding-top: 3rem;
+}
+
+.table {
+    padding-top: 20px;
+}
+
+label {
+    font-size: 1.1em;
+}
+
+.date-field {
+    width: 30%;
+}

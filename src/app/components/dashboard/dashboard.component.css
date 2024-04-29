@@ -1,0 +1,93 @@
+.container-fluid {
+    background-color: #2f2f31; /* Establece el color de fondo a #3d3d3d */
+    color: white; /* Establece el color del texto en blanco para contrastar con el fondo */
+    padding-top: 20px; /* Agrega un margen superior para separar del header */
+}
+
+.card {
+    background-color: #3d3f42; /* Establece el color de fondo a #3d3d3d */
+    color: white; /* Establece el color del texto en blanco para contrastar con el fondo */
+}
+
+h3 {
+    font-size: 1.1em;
+}
+
+h3.reglash3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+h4 {
+    font-weight: bold;
+}
+
+.date-field {
+    width: 100%; /* Ajustar el ancho al 100% del contenedor */
+}
+
+.shift-field {
+    width: 100%; /* Ajustar el ancho al 100% del contenedor */
+}
+
+.schedules-field {
+    width: 100%; /* Ajustar el ancho al 100% del contenedor */
+}
+
+.users-field {
+    width: 100%; /* Ajustar el ancho al 100% del contenedor */
+}
+
+.user-reservation-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    /* margin-top: 20px; */
+}
+
+.boton {
+    background-color: #4DCC42;
+}
+
+h2 {
+    text-align: center;
+}
+
+::ng-deep .mat-mdc-tab-group {
+    --mdc-tab-indicator-active-indicator-color: #4DCC42;
+    --mat-tab-header-inactive-label-text-color: #e4dddd;
+    --mat-tab-header-active-label-text-color: #4DCC42;
+    --mat-tab-header-active-ripple-color: #4DCC42;
+    --mat-tab-header-inactive-ripple-color: #4DCC42;
+    --mat-tab-header-active-focus-label-text-color: #4DCC42;
+    --mat-tab-header-active-hover-label-text-color: #4DCC42;
+    --mat-tab-header-inactive-hover-label-text-color: #4DCC42;
+    --mat-tab-header-active-focus-indicator-color: #4DCC42;
+    --mat-tab-header-active-hover-indicator-color: #4DCC42;
+}
+
+::ng-deep .btn-primary {
+    --bs-btn-bg: #4DCC42;
+    --bs-btn-border-color: #4DCC42;
+    --bs-btn-hover-bg: #37ad2c;
+    --bs-btn-hover-border-color: #37ad2c;
+    --bs-btn-disabled-bg: #4DCC42;
+    --bs-btn-disabled-border-color: #4DCC42;
+}
+
+::ng-deep .btn-primary:not(:disabled):not(.disabled).active {
+    background-color: #37ad2c;
+    border-color: #37ad2c;
+}
+
+::ng-deep .btn-primary:not(:disabled):not(.disabled):active {
+    background-color: #37ad2c;
+    border-color: #37ad2c;
+}
+
+::ng-deep .btn-primary:focus {
+    background-color: #45b33b;
+    border-color: #45b33b;
+}

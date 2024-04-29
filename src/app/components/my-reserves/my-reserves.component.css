@@ -1,0 +1,38 @@
+.container-fluid {
+    background-color: #2f2f31; /* Establece el color de fondo a #3d3d3d */
+    color: white; /* Establece el color del texto en blanco para contrastar con el fondo */
+    padding-top: 20px; /* Agrega un margen superior para separar del header */
+}
+
+.card {
+    background-color: #3d3f42; /* Establece el color de fondo a #3d3d3d */
+    color: white; /* Establece el color del texto en blanco para contrastar con el fondo */
+}
+
+h2 {
+    text-align: center;
+}
+
+::ng-deep .btn-primary {
+    --bs-btn-bg: #4DCC42;
+    --bs-btn-border-color: #4DCC42;
+    --bs-btn-hover-bg: #37ad2c;
+    --bs-btn-hover-border-color: #37ad2c;
+    --bs-btn-disabled-bg: #4DCC42;
+    --bs-btn-disabled-border-color: #4DCC42;
+}
+
+::ng-deep .btn-primary:not(:disabled):not(.disabled).active {
+    background-color: #37ad2c;
+    border-color: #37ad2c;
+}
+
+::ng-deep .btn-primary:not(:disabled):not(.disabled):active {
+    background-color: #37ad2c;
+    border-color: #37ad2c;
+}
+
+::ng-deep .btn-primary:focus {
+    background-color: #45b33b;
+    border-color: #45b33b;
+}

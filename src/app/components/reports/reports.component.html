@@ -1,0 +1,23 @@
+<div class="container reports">
+  <form class="row align-items-center" (ngSubmit)="findReserves()" >
+      <mat-form-field class="date-field">
+        <mat-label>Fecha</mat-label>
+        <input matInput [matDatepicker]="picker" placeholder="Seleccionar fecha" [formControl]="reportDateControl" >
+        <mat-hint>DD/MM/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker" ></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <div class="col-auto">
+        <button type="button" class="btn btn-primary" type="submit">Buscar</button>
+      </div>
+      <div class="col-auto ms-auto">
+          <button *ngIf="reportReceived" type="button" class="btn btn-success" (click)="exportToExcel()">Exportar a excel</button>
+      </div>
+  </form>
+  <section class="table">
+    <app-table *ngIf="reportReceived else reportNotReceived" [data]="REPORTS_DATA" [columns]="tableColumns" [config]="tableConfig" [sortConfig]="sortDisabled"></app-table>
+    <ng-template #reportNotReceived>
+      <p>{{reportMessage}}</p>
+    </ng-template>
+  </section>
+</div>

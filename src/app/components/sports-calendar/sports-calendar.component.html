@@ -1,0 +1,73 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <!-- /.col -->
+      <div class="col-md-10">
+        <div class="card card-primary">
+          <div class="card-body p-0">
+            <!-- THE CALENDAR -->
+            <div #calendar>
+              <full-calendar [options]="calendarOptions"></full-calendar>
+            </div>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+</section>
+
+<ng-template #modalCrearActDepo>
+  <h2 mat-dialog-title>Crear Actividad Deportiva</h2>
+  <mat-dialog-content>
+    <form>
+      <mat-form-field class="example-full-width">
+        <mat-label>Nombre de la actividad</mat-label>
+        <input matInput placeholder="Ej. Fútbol" [formControl]="activityNameControl" (ngModelChange)="enableCreateButton()">
+        <mat-error *ngIf="activityNameControl.hasError('required')">Campo requerido</mat-error>
+      </mat-form-field>
+      <mat-form-field class="date-field">
+        <mat-label>Fecha</mat-label>
+        <input matInput [matDatepicker]="picker" placeholder="Seleccionar fecha" [formControl]="activityDateControl" [matDatepickerFilter]="dateFilter" (ngModelChange)="enableCreateButton()">
+        <mat-hint>DD/MM/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Hora de inicio</mat-label>
+        <input matInput type="time" [formControl]="activityTimeStartControl" (ngModelChange)="enableCreateButton()">
+        <mat-error *ngIf="activityNameControl.hasError('required')">Campo requerido</mat-error>
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Hora de finalizacion</mat-label>
+        <input matInput type="time" [formControl]="activityTimeEndControl" (ngModelChange)="enableCreateButton()">
+        <mat-error *ngIf="activityNameControl.hasError('required')">Campo requerido</mat-error>
+      </mat-form-field>
+      <mat-form-field class="example-full-width">
+        <mat-label>Lugar de la actividad</mat-label>
+        <input matInput placeholder="Ej. Parque Miranda" [formControl]="activityPlaceControl" (ngModelChange)="enableCreateButton()">
+        <mat-error *ngIf="activityNameControl.hasError('required')">Campo requerido</mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close style="color: white;">Cancelar</button>
+    <button mat-raised-button (click)="createSportsAct()" color="primary" style="color: white; background-color: #4DCC42;" [disabled]="buttonDisabled">Crear</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<ng-template #modalInfoActDepo>
+  <h2 mat-dialog-title>Actividad Deportiva: {{nombreActividadModal}}</h2>
+  <mat-dialog-content>
+    <p style="padding-top: 20px;"><strong>Lugar:</strong> {{lugarActividadModal}}</p>
+    <p><strong>Fecha:</strong> {{fechaActividadModal}}</p>
+    <p><strong>Hora de inicio:</strong> {{horaInicioActividadModal}}</p>
+    <p><strong>Hora de Finalizacion:</strong> {{horaFinActividadModal}}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button mat-button mat-dialog-close style="color: white;">Cerrar</button>
+  </mat-dialog-actions>
+</ng-template>

@@ -1,0 +1,132 @@
+image: node:18.17.0-bullseye
+
+stages:
+  - install
+  - test
+  - build
+  - registerdev
+  - registerqa
+  - registerprod
+  - deployDev
+  - deployQa
+  - deployPro
+
+variables:
+  GIT_STRATEGY: clone
+
+
+install:
+  stage: install
+  script:
+
+    - npm config set proxy http://10.132.0.10:8080
+    - npm config set strict-ssl false
+    - git config --global http.proxy http://10.132.0.10:8080
+    - npm config set legacy-peer-deps true
+    - npm install -g npm@6.14.11
+    - npm install
+  tags:
+    - docker
+  artifacts:
+    expire_in: 1h
+    paths:
+      - node_modules/
+  cache:
+    paths:
+      - node_modules/
+  only:
+    - develop
+    - master
+    - qa
+
+build:
+  stage: build
+  dependencies:
+    - install
+  script:
+    - npm run build
+  tags:
+    - docker
+  artifacts:
+    expire_in: 1h
+    paths:
+      - dist/
+  only:
+    - develop
+    - master
+    - qa
+
+registerdev:
+  stage: registerdev
+  dependencies:
+    - build
+  script:
+    - sudo docker build -t $REPO_DEV$CI_PROJECT_NAME$CI_PIPELINE_ID .
+    - sudo docker push $REPO_DEV$CI_PROJECT_NAME$CI_PIPELINE_ID
+  tags:
+    - shell
+  only:
+    - develop
+
+deployDev:
+  stage: deployDev
+  dependencies:
+    - registerdev
+  script:
+    - ssh -t -t $USER@$HOSTMASTER "sudo sh /usr/local/bin/service_script.sh 30006"
+    - ssh -t -t $USER@$HOSTMASTER "sudo kubectl create deployment $CI_PROJECT_NAME$CI_PIPELINE_ID --image=$REPO_DEV$CI_PROJECT_NAME$CI_PIPELINE_ID"
+    - ssh -t -t $USER@$HOSTMASTER "sudo kubectl create service nodeport $CI_PROJECT_NAME$CI_PIPELINE_ID --tcp=$PORT_APP:$PORT_APP --node-port=$PORT_KUBERNETES"
+  tags:
+    - shell
+  only:
+    - develop
+
+registerqa:
+  stage: registerqa
+  dependencies:
+    - build
+  script:
+    - sudo docker build -t $REPO_QA$CI_PROJECT_NAME$CI_PIPELINE_ID .
+    - sudo docker push $REPO_QA$CI_PROJECT_NAME$CI_PIPELINE_ID
+  tags:
+    - shell
+  only:
+    - qa
+
+deployQa:
+  stage: deployQa
+  dependencies:
+    - registerqa
+  script:
+    - ssh -t -t $USER@$HOSTMASTERQA "sudo sh /usr/local/bin/service_script.sh 30006"
+    - ssh -t -t $USER@$HOSTMASTERQA "sudo kubectl create deployment $CI_PROJECT_NAME$CI_PIPELINE_ID --image=$REPO_QA$CI_PROJECT_NAME$CI_PIPELINE_ID"
+    - ssh -t -t $USER@$HOSTMASTERQA "sudo kubectl create service nodeport $CI_PROJECT_NAME$CI_PIPELINE_ID --tcp=$PORT_APP:$PORT_APP --node-port=$PORT_KUBERNETES"
+  tags:
+    - shell
+  only:
+    - qa
+
+registerprod:
+  stage: registerprod
+  dependencies:
+    - build
+  script:
+    - sudo docker build -t $REPO_PROD$CI_PROJECT_NAME$CI_PIPELINE_ID .
+    - sudo docker push $REPO_PROD$CI_PROJECT_NAME$CI_PIPELINE_ID
+  tags:
+    - shell
+  only:
+    - master
+
+deployPro:
+  stage: deployPro
+  dependencies:
+    - registerprod
+  script:
+    - ssh -t -t $USER@$HOSTMASTERPROD "sudo sh /usr/local/bin/service_script.sh 30006"
+    - ssh -t -t $USER@$HOSTMASTERPROD "sudo kubectl create deployment $CI_PROJECT_NAME$CI_PIPELINE_ID --image=$REPO_PROD$CI_PROJECT_NAME$CI_PIPELINE_ID"
+    - ssh -t -t $USER@$HOSTMASTERPROD "sudo kubectl create service nodeport $CI_PROJECT_NAME$CI_PIPELINE_ID --tcp=$PORT_APP:$PORT_APP --node-port=$PORT_KUBERNETES"
+  tags:
+    - shell
+  only:
+    - master

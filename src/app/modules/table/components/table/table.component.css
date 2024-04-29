@@ -1,0 +1,27 @@
+/* Estilos generales de la tabla */
+th, td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+/* Estilos específicos de Angular Material */
+.mat-header-row {
+    font-weight: bold;
+}
+
+/* ...otros estilos para mat-row, mat-cell, etc. */
+
+.bloquear-usuarios-styles {
+  display: flex;
+  justify-content: center;
+}
+
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
